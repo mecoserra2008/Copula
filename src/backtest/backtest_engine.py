@@ -155,7 +155,7 @@ class BacktestEngine:
                 continue
 
         # Finalize
-        final_timestamp = timestamps[-1] if timestamps else datetime.now()
+        final_timestamp = timestamps[-1] if len(timestamps) > 0 else datetime.now()
         strategy.finalize(self.portfolio, final_timestamp)
 
         # Compute results
