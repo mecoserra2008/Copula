@@ -1,0 +1,88 @@
+# Bybit Copula Framework Configuration
+
+# Bybit API Configuration
+bybit:
+  api_key: ""  # Leave empty for public endpoints
+  api_secret: ""  # Leave empty for public endpoints
+  testnet: false
+  base_url: "https://api.bybit.com"
+
+# Data Configuration
+data:
+  interval: "15"  # 15-minute candles
+  default_days: 30  # Default number of days to fetch
+  cache_enabled: true
+  cache_dir: "data/cache"
+
+  # Symbols to analyze
+  symbols:
+    - "BTCUSDT"
+    - "ETHUSDT"
+    - "SOLUSDT"
+    - "XRPUSDT"
+    - "ADAUSDT"
+
+  # Pairs to analyze
+  pairs:
+    - ["BTCUSDT", "ETHUSDT"]
+    - ["BTCUSDT", "SOLUSDT"]
+    - ["ETHUSDT", "SOLUSDT"]
+
+# Copula Configuration
+copulas:
+  types:
+    - "gaussian"
+    - "student_t"
+    - "clayton"
+    - "gumbel"
+    - "frank"
+
+  # Model selection criteria
+  selection_criterion: "aic"  # "aic" or "bic"
+
+  # Student-t copula configuration
+  student_t:
+    df_bounds: [2, 30]  # Degrees of freedom bounds
+
+  # Archimedean copula configuration
+  clayton:
+    theta_bounds: [0.01, 20]
+
+  gumbel:
+    theta_bounds: [1.01, 20]
+
+  frank:
+    theta_bounds: [-20, 20]
+
+# Transformation Configuration
+transformations:
+  method: "empirical"  # "empirical" or "parametric"
+
+  # For parametric transformation
+  parametric:
+    distribution: "norm"  # "norm", "t", or "skewt"
+
+# Analysis Configuration
+analysis:
+  # Risk metrics
+  var_confidence: 0.95  # VaR confidence level
+  cvar_confidence: 0.95  # CVaR confidence level
+
+  # Dependence metrics
+  compute_kendall_tau: true
+  compute_spearman_rho: true
+  compute_tail_dependence: true
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/copula.log"
+  console: true
+
+# Output Configuration
+output:
+  save_results: true
+  results_dir: "results"
+  plot_dir: "plots"
+  save_plots: true
