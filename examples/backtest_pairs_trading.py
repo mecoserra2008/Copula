@@ -24,15 +24,17 @@ def main():
     # Configuration
     symbol1 = "BTCUSDT"
     symbol2 = "ETHUSDT"
+    benchmark_symbol = "BTCUSDT"  # Using BTC as benchmark
     interval = "15"  # 15-minute bars
     days = 30
 
     # Fetch data
-    logger.info(f"\nFetching data for {symbol1} and {symbol2}...")
+    logger.info(f"\nFetching data for {symbol1}, {symbol2}, and benchmark...")
     fetcher = BybitDataFetcher()
 
     df1 = fetcher.fetch_and_cache(symbol1, interval=interval, days=days)
     df2 = fetcher.fetch_and_cache(symbol2, interval=interval, days=days)
+    df_benchmark = fetcher.fetch_and_cache(benchmark_symbol, interval=interval, days=days)
 
     if df1.empty or df2.empty:
         logger.error("Failed to fetch data")
@@ -40,6 +42,8 @@ def main():
 
     logger.info(f"Fetched {len(df1)} bars for {symbol1}")
     logger.info(f"Fetched {len(df2)} bars for {symbol2}")
+    if not df_benchmark.empty:
+        logger.info(f"Fetched {len(df_benchmark)} bars for {benchmark_symbol} (benchmark)")
 
     # Prepare data for backtesting
     data = {
@@ -68,6 +72,10 @@ def main():
 
     # Load data
     engine.load_data(data)
+
+    # Load benchmark if available
+    if not df_benchmark.empty:
+        engine.load_benchmark(df_benchmark, benchmark_symbol)
 
     # Run backtest
     logger.info("\nRunning backtest...")

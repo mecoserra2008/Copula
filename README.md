@@ -17,7 +17,9 @@ This framework provides a complete toolkit for:
 ## Features
 
 ### Data Layer
-- **Bybit Integration**: Fetch historical 15-minute OHLCV data
+- **Bybit Futures Integration**: Fetch historical 15-minute OHLCV data from futures markets
+- **Batched Historical Fetching**: Automatically handles Bybit's API limits with smart batching
+- **45+ Trading Pairs**: Pre-configured futures symbols across all categories (majors, altcoins, DeFi, meme tokens)
 - **Data Preprocessing**: Clean, validate, and align time series
 - **Return Calculations**: Log returns, simple returns, volatility metrics
 
@@ -37,11 +39,24 @@ This framework provides a complete toolkit for:
 - **Risk Metrics**: VaR, CVaR, diversification benefits
 - **Model Selection**: Automatic selection using AIC/BIC
 
+### Visualization Tools
+- **3D PDF Surface Plots**: Visualize copula probability density functions
+- **CDF Contour Plots**: Show copula cumulative distribution contours
+- **Scatter Comparisons**: Compare empirical data vs fitted copula
+- **Copula Comparison Grids**: Side-by-side comparison of multiple copulas
+- **Tail Dependence Illustrations**: Visualize upper and lower tail dependencies
+- **Density Heatmaps**: 2D density visualization
+
 ### Backtesting Framework
 - **Portfolio Management**: Track positions, cash, and equity
 - **Performance Metrics**: Sharpe, Sortino, Calmar, max drawdown, win rate, profit factor
+- **Benchmark Comparison**: Compare against Bitcoin or custom benchmarks
+  - Information Ratio, Alpha, Beta
+  - Tracking Error, Up/Down Capture Ratios
+  - Outperformance analysis
 - **Transaction Costs**: Configurable commissions and slippage
-- **Comprehensive Reporting**: Equity curves, trade history, drawdown analysis
+- **Comprehensive Charts**: 9-panel visualization including equity curves, drawdowns, returns distribution, rolling metrics, and monthly heatmaps
+- **Detailed Reporting**: Trade history, drawdown analysis, and benchmark comparison
 
 ### Trading Strategies
 - **Pairs Trading**: Copula-based mean reversion strategy
@@ -227,6 +242,103 @@ engine.load_data(data)
 results = engine.run(strategy)
 ```
 
+### Copula Visualizations
+
+```python
+from src.copulas.visualization import CopulaVisualizer
+from src.copulas.gaussian import GaussianCopula
+
+# Fit a copula (assuming you have uniform data U)
+copula = GaussianCopula()
+copula.fit(U)
+
+# Create visualizations
+visualizer = CopulaVisualizer()
+
+# 1. 3D PDF surface plot
+visualizer.plot_pdf_surface(
+    copula,
+    title="Gaussian Copula PDF",
+    save_path="plots/copula_pdf.png"
+)
+
+# 2. CDF contour plot
+visualizer.plot_cdf_contours(
+    copula,
+    title="Gaussian Copula CDF",
+    save_path="plots/copula_cdf.png"
+)
+
+# 3. Scatter plot comparison (empirical vs copula)
+visualizer.plot_scatter_comparison(
+    copula,
+    U,  # Your empirical data
+    save_path="plots/copula_scatter.png"
+)
+
+# 4. Compare multiple copulas side-by-side
+copulas = [gaussian_copula, student_t_copula, clayton_copula]
+names = ["Gaussian", "Student-t", "Clayton"]
+visualizer.plot_copula_comparison(
+    copulas,
+    names,
+    save_path="plots/copula_comparison.png"
+)
+
+# 5. Tail dependence illustration
+visualizer.plot_tail_dependence_illustration(
+    student_t_copula,
+    U,
+    save_path="plots/tail_dependence.png"
+)
+
+# 6. Density heatmap
+visualizer.plot_density_heatmap(
+    copula,
+    save_path="plots/density_heatmap.png"
+)
+```
+
+### Benchmark Comparison
+
+Compare your strategy against Bitcoin or any other benchmark:
+
+```python
+from src.backtest.backtest_engine import BacktestEngine
+
+# Initialize engine
+engine = BacktestEngine(initial_capital=100000.0)
+
+# Load strategy data
+engine.load_data(data)
+
+# Load benchmark (e.g., Bitcoin)
+engine.load_benchmark(btc_df, benchmark_symbol="BTCUSDT")
+
+# Run backtest
+results = engine.run(strategy)
+
+# Print results with benchmark comparison
+engine.print_results()
+# Output includes:
+#   - Strategy vs Benchmark returns
+#   - Information Ratio
+#   - Beta and Alpha
+#   - Tracking Error
+#   - Up/Down Capture Ratios
+
+# Plot comprehensive charts with benchmark
+engine.plot_results(save_path="plots/backtest_report.png")
+# Creates 9-panel chart including:
+#   1. Equity curve vs benchmark
+#   2. Drawdown comparison
+#   3. Returns distribution
+#   4. Cumulative returns
+#   5. Rolling Sharpe ratio
+#   6. Monthly returns heatmap
+#   7. Performance metrics summary
+```
+
 ## Configuration
 
 Edit `config/config.yaml` to customize:
@@ -303,6 +415,18 @@ python examples/backtest_tail_risk.py
 ```
 Dynamic hedging strategy using tail dependence from Student-t copula.
 
+#### 7. Copula Visualizations Demo
+```bash
+python examples/demo_visualizations.py
+```
+Demonstrates all copula visualization capabilities including PDF surfaces, CDF contours, scatter comparisons, and tail dependence illustrations.
+
+#### 8. Backtest with Benchmark
+```bash
+python examples/backtest_with_benchmark.py
+```
+Complete example showing benchmark comparison with detailed alpha, beta, information ratio, and capture ratio analysis.
+
 ### Jupyter Notebooks
 
 #### Complete Framework Tutorial
@@ -331,7 +455,8 @@ Copula/
 │   │   ├── student_t.py
 │   │   ├── clayton.py
 │   │   ├── gumbel.py
-│   │   └── frank.py
+│   │   ├── frank.py
+│   │   └── visualization.py  # NEW: Copula visualization tools
 │   ├── transformations/   # Marginal transformations
 │   │   ├── empirical.py
 │   │   └── parametric.py
@@ -359,7 +484,9 @@ Copula/
 │   ├── risk_analysis.py
 │   ├── backtest_pairs_trading.py
 │   ├── backtest_stat_arb.py
-│   └── backtest_tail_risk.py
+│   ├── backtest_tail_risk.py
+│   ├── demo_visualizations.py     # NEW: Copula visualization demo
+│   └── backtest_with_benchmark.py # NEW: Benchmark comparison demo
 ├── notebooks/             # Jupyter notebooks
 │   └── 01_copula_framework_tutorial.ipynb
 ├── tests/                 # Unit tests
