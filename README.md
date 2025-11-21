@@ -11,6 +11,8 @@ This framework provides a complete toolkit for:
 - Fitting multiple copula models (Gaussian, Student-t, Clayton, Gumbel, Frank)
 - Analyzing dependencies and tail risks
 - Computing portfolio risk metrics
+- **Backtesting trading strategies** with comprehensive performance metrics
+- **Implementing copula-based trading strategies** (pairs trading, stat arb, tail risk hedging)
 
 ## Features
 
@@ -34,6 +36,18 @@ This framework provides a complete toolkit for:
 - **Dependence Metrics**: Pearson, Spearman, Kendall's tau, tail dependence
 - **Risk Metrics**: VaR, CVaR, diversification benefits
 - **Model Selection**: Automatic selection using AIC/BIC
+
+### Backtesting Framework
+- **Portfolio Management**: Track positions, cash, and equity
+- **Performance Metrics**: Sharpe, Sortino, Calmar, max drawdown, win rate, profit factor
+- **Transaction Costs**: Configurable commissions and slippage
+- **Comprehensive Reporting**: Equity curves, trade history, drawdown analysis
+
+### Trading Strategies
+- **Pairs Trading**: Copula-based mean reversion strategy
+- **Statistical Arbitrage**: Multi-pair market-neutral strategy
+- **Tail Risk Hedging**: Dynamic hedging using tail dependence
+- **Custom Strategies**: Extensible base class for building your own
 
 ## Installation
 
@@ -132,6 +146,87 @@ div_benefit = RiskMetrics.diversification_benefit(r1, r2, weight1=0.5)
 print(f"Diversification benefit: {div_benefit['diversification_benefit_pct']:.2f}%")
 ```
 
+### Trading Strategies
+
+```python
+from src.strategies.pairs_trading import CopulaPairsTradingStrategy
+from src.backtest.backtest_engine import BacktestEngine
+
+# Create pairs trading strategy
+strategy = CopulaPairsTradingStrategy(
+    symbol1="BTCUSDT",
+    symbol2="ETHUSDT",
+    lookback_period=500,
+    copula_type="gaussian",
+    entry_threshold=0.05,  # Enter when prob < 5% or > 95%
+    exit_threshold=0.5,    # Exit when prob reverts to 50%
+    position_size=0.5
+)
+
+# Prepare data
+data = {
+    "BTCUSDT": btc_df,
+    "ETHUSDT": eth_df
+}
+
+# Initialize backtest engine
+engine = BacktestEngine(
+    initial_capital=100000.0,
+    transaction_cost=0.001,
+    slippage=0.0005
+)
+
+# Run backtest
+engine.load_data(data)
+results = engine.run(strategy)
+
+# Print performance
+engine.print_results()
+engine.plot_results()
+```
+
+### Statistical Arbitrage
+
+```python
+from src.strategies.statistical_arbitrage import CopulaStatisticalArbitrageStrategy
+
+# Multi-pair stat arb
+strategy = CopulaStatisticalArbitrageStrategy(
+    pairs=[
+        ("BTCUSDT", "ETHUSDT"),
+        ("BTCUSDT", "SOLUSDT"),
+        ("ETHUSDT", "SOLUSDT")
+    ],
+    lookback_period=500,
+    copula_type="gaussian",
+    rebalance_frequency=20,
+    num_positions=4
+)
+
+# Backtest
+engine.load_data(data)
+results = engine.run(strategy)
+```
+
+### Tail Risk Hedging
+
+```python
+from src.strategies.tail_risk_hedging import CopulaTailRiskHedgingStrategy
+
+# Tail risk hedging strategy
+strategy = CopulaTailRiskHedgingStrategy(
+    base_asset="BTCUSDT",
+    hedge_assets=["ETHUSDT", "SOLUSDT"],
+    copula_type="student_t",  # Uses tail dependence
+    max_hedge_ratio=0.3,
+    base_allocation=0.7
+)
+
+# Backtest
+engine.load_data(data)
+results = engine.run(strategy)
+```
+
 ## Configuration
 
 Edit `config/config.yaml` to customize:
@@ -170,23 +265,56 @@ transformations:
 
 The `examples/` directory contains complete working examples:
 
-### 1. Basic Usage
+### Python Scripts
+
+#### 1. Basic Usage
 ```bash
 python examples/basic_usage.py
 ```
 Demonstrates basic copula fitting for a single pair.
 
-### 2. Multi-Pair Analysis
+#### 2. Multi-Pair Analysis
 ```bash
 python examples/multi_pair_analysis.py
 ```
 Shows how to analyze multiple pairs and compare results.
 
-### 3. Risk Analysis
+#### 3. Risk Analysis
 ```bash
 python examples/risk_analysis.py
 ```
 Comprehensive risk analysis including VaR, CVaR, and diversification benefits.
+
+#### 4. Pairs Trading Backtest
+```bash
+python examples/backtest_pairs_trading.py
+```
+Complete backtest of copula-based pairs trading strategy.
+
+#### 5. Statistical Arbitrage Backtest
+```bash
+python examples/backtest_stat_arb.py
+```
+Multi-pair statistical arbitrage strategy with market-neutral portfolio.
+
+#### 6. Tail Risk Hedging Backtest
+```bash
+python examples/backtest_tail_risk.py
+```
+Dynamic hedging strategy using tail dependence from Student-t copula.
+
+### Jupyter Notebooks
+
+#### Complete Framework Tutorial
+```bash
+jupyter notebook notebooks/01_copula_framework_tutorial.ipynb
+```
+Comprehensive tutorial covering:
+- Data fetching and preprocessing
+- Copula fitting and model selection
+- Dependence analysis and visualization
+- Strategy development
+- Backtesting and performance evaluation
 
 ## Project Structure
 
@@ -212,11 +340,28 @@ Copula/
 │   ├── analysis/          # Analysis tools
 │   │   ├── dependence.py
 │   │   └── risk.py
+│   ├── backtest/          # Backtesting framework
+│   │   ├── portfolio.py
+│   │   ├── performance.py
+│   │   └── backtest_engine.py
+│   ├── strategies/        # Trading strategies
+│   │   ├── base_strategy.py
+│   │   ├── pairs_trading.py
+│   │   ├── statistical_arbitrage.py
+│   │   └── tail_risk_hedging.py
 │   └── utils/             # Utilities
 │       ├── config.py
 │       ├── logger.py
 │       └── validators.py
 ├── examples/              # Example scripts
+│   ├── basic_usage.py
+│   ├── multi_pair_analysis.py
+│   ├── risk_analysis.py
+│   ├── backtest_pairs_trading.py
+│   ├── backtest_stat_arb.py
+│   └── backtest_tail_risk.py
+├── notebooks/             # Jupyter notebooks
+│   └── 01_copula_framework_tutorial.ipynb
 ├── tests/                 # Unit tests
 ├── config/                # Configuration files
 ├── ARCHITECTURE.md        # Detailed architecture
