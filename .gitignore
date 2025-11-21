@@ -38,8 +38,8 @@ ENV/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Data files
-data/
+# Data files (cache directory only, not source code)
+data/cache/
 *.csv
 *.json
 *.parquet

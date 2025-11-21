@@ -1,32 +1,106 @@
 # Bybit Copula Framework Configuration
 
-# Bybit API Configuration
+# Bybit Futures API Configuration
 bybit:
-  api_key: ""  # Leave empty for public endpoints
+  api_key: ""  # Leave empty for public endpoints (read-only)
   api_secret: ""  # Leave empty for public endpoints
   testnet: false
   base_url: "https://api.bybit.com"
+  category: "linear"  # Futures trading
 
 # Data Configuration
 data:
-  interval: "15"  # 15-minute candles
+  interval: "15"  # 15-minute candles (1, 3, 5, 15, 30, 60, 120, 240, 360, 720, D, W, M)
   default_days: 30  # Default number of days to fetch
   cache_enabled: true
   cache_dir: "data/cache"
 
-  # Symbols to analyze
+  # Major Bybit Futures Symbols
   symbols:
-    - "BTCUSDT"
-    - "ETHUSDT"
-    - "SOLUSDT"
-    - "XRPUSDT"
-    - "ADAUSDT"
+    # Tier 1 - Major coins
+    - "BTCUSDT"     # Bitcoin
+    - "ETHUSDT"     # Ethereum
+    - "BNBUSDT"     # Binance Coin
+    - "SOLUSDT"     # Solana
+    - "XRPUSDT"     # Ripple
+    - "ADAUSDT"     # Cardano
+    - "DOGEUSDT"    # Dogecoin
+    - "MATICUSDT"   # Polygon
+    - "DOTUSDT"     # Polkadot
+    - "LTCUSDT"     # Litecoin
 
-  # Pairs to analyze
+    # Tier 2 - Popular altcoins
+    - "AVAXUSDT"    # Avalanche
+    - "LINKUSDT"    # Chainlink
+    - "ATOMUSDT"    # Cosmos
+    - "UNIUSDT"     # Uniswap
+    - "XLMUSDT"     # Stellar
+    - "ETCUSDT"     # Ethereum Classic
+    - "FILUSDT"     # Filecoin
+    - "APTUSDT"     # Aptos
+    - "ARBUSDT"     # Arbitrum
+    - "OPUSDT"      # Optimism
+
+    # Tier 3 - DeFi & Layer 2
+    - "AAVEUSDT"    # Aave
+    - "SUSHIUSDT"   # SushiSwap
+    - "CRVUSDT"     # Curve DAO
+    - "MKRUSDT"     # Maker
+    - "COMPUSDT"    # Compound
+    - "SNXUSDT"     # Synthetix
+    - "ICPUSDT"     # Internet Computer
+    - "NEARUSDT"    # NEAR Protocol
+    - "ALGOUSDT"    # Algorand
+    - "VETUSDT"     # VeChain
+
+    # Tier 4 - Emerging
+    - "FTMUSDT"     # Fantom
+    - "SANDUSDT"    # The Sandbox
+    - "MANAUSDT"    # Decentraland
+    - "AXSUSDT"     # Axie Infinity
+    - "THETAUSDT"   # Theta Network
+    - "APEUSDT"     # ApeCoin
+    - "ROSEUSDT"    # Oasis Network
+    - "GALAUSDT"    # Gala
+    - "CHZUSDT"     # Chiliz
+    - "ENJUSDT"     # Enjin Coin
+
+    # Tier 5 - Meme & Speculative
+    - "SHIBUSDT"    # Shiba Inu
+    - "PEPEUSDT"    # Pepe
+    - "FLOKIUSDT"   # Floki
+    - "1000BONKUSDT" # Bonk
+    - "WIFUSDT"     # dogwifhat
+
+  # Recommended Pairs for Copula Analysis
   pairs:
+    # Major pairs
     - ["BTCUSDT", "ETHUSDT"]
+    - ["BTCUSDT", "BNBUSDT"]
     - ["BTCUSDT", "SOLUSDT"]
     - ["ETHUSDT", "SOLUSDT"]
+    - ["ETHUSDT", "AVAXUSDT"]
+
+    # Altcoin pairs
+    - ["BTCUSDT", "XRPUSDT"]
+    - ["BTCUSDT", "ADAUSDT"]
+    - ["BTCUSDT", "DOTUSDT"]
+    - ["ETHUSDT", "LINKUSDT"]
+    - ["ETHUSDT", "UNIUSDT"]
+
+    # Layer 1/2 pairs
+    - ["SOLUSDT", "AVAXUSDT"]
+    - ["ARBUSDT", "OPUSDT"]
+    - ["NEARUSDT", "ICPUSDT"]
+    - ["ATOMUSDT", "DOTUSDT"]
+
+    # DeFi pairs
+    - ["AAVEUSDT", "UNIUSDT"]
+    - ["MKRUSDT", "COMPUSDT"]
+    - ["SUSHIUSDT", "CRVUSDT"]
+
+  # Benchmark for performance comparison
+  benchmark_symbol: "BTCUSDT"  # Bitcoin as benchmark
 
 # Copula Configuration
 copulas:
