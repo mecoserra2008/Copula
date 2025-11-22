@@ -584,3 +584,91 @@ class StudentTCopula(BivariateCopula):
         lambda_tail = 2 * _t_cdf(arg, df=df + 1)
 
         return lambda_tail, lambda_tail
+
+    def information_geometry_metrics(self, U: np.ndarray) -> dict:
+        """
+        Compute information geometry metrics for the t-copula.
+
+        Returns geometric and information-theoretic properties.
+
+        Args:
+            U: Data for computing metrics (n_samples, 2)
+
+        Returns:
+            Dictionary with metrics
+        """
+        if not self.is_fitted_:
+            raise ValueError("Copula must be fitted")
+
+        rho = self.params_["rho"]
+        df = self.params_["df"]
+        n = U.shape[0]
+
+        # Approximate Fisher information (numerical)
+        # For t-copula, no closed form, so we estimate
+        fisher_rho = n / (1 - rho**2)**2  # Approximate (similar to Gaussian)
+
+        # Estimate for df parameter is more complex
+        fisher_df = n / (2 * df**2)  # Rough approximation
+
+        fisher_matrix = np.array([
+            [fisher_rho, 0],
+            [0, fisher_df]
+        ])
+
+        fisher_det = np.linalg.det(fisher_matrix)
+        volume_element = np.sqrt(fisher_det)
+
+        # Mutual information (estimated numerically)
+        # Sample and compute empirical MI
+        samples = U
+        copula_density = self.pdf(samples)
+        mutual_info = np.mean(np.log(copula_density + 1e-10))
+
+        # Tail dependence
+        lambda_l, lambda_u = self.tail_dependence()
+
+        return {
+            "fisher_information": fisher_matrix,
+            "fisher_determinant": fisher_det,
+            "manifold_volume": volume_element,
+            "mutual_information": mutual_info,
+            "correlation": rho,
+            "degrees_of_freedom": df,
+            "tail_dependence_lower": lambda_l,
+            "tail_dependence_upper": lambda_u,
+        }
+
+    def kendall_tau(self) -> float:
+        """
+        Compute Kendall's tau for the t-copula.
+
+        For t-copula: τ = (2/π) * arcsin(ρ) (same as Gaussian)
+
+        Returns:
+            Kendall's tau coefficient
+        """
+        if not self.is_fitted_:
+            raise ValueError("Copula must be fitted")
+
+        rho = self.params_["rho"]
+        tau = (2 / np.pi) * np.arcsin(rho)
+
+        return tau
+
+    def spearman_rho(self) -> float:
+        """
+        Compute Spearman's rho for the t-copula.
+
+        For t-copula: ρ_S ≈ (6/π) * arcsin(ρ/2) (approximate, like Gaussian)
+
+        Returns:
+            Spearman's rho coefficient
+        """
+        if not self.is_fitted_:
+            raise ValueError("Copula must be fitted")
+
+        rho = self.params_["rho"]
+        rho_s = (6 / np.pi) * np.arcsin(rho / 2)
+
+        return rho_s

@@ -384,3 +384,82 @@ class GaussianCopula(BivariateCopula):
         cond_cdf = _norm_cdf(z)
 
         return cond_cdf
+
+    def information_geometry_metrics(self, U: np.ndarray) -> dict:
+        """
+        Compute information geometry metrics for the copula.
+
+        Returns geometric and information-theoretic properties based on the
+        Fisher information metric on the statistical manifold.
+
+        Args:
+            U: Data for computing metrics (n_samples, 2)
+
+        Returns:
+            Dictionary with metrics:
+            - fisher_information: Fisher information matrix
+            - fisher_determinant: Determinant of Fisher matrix
+            - manifold_volume: Volume element on manifold
+            - mutual_information: Estimated mutual information
+        """
+        if not self.is_fitted_:
+            raise ValueError("Copula must be fitted")
+
+        rho = self.params_["rho"]
+
+        # Fisher information for Gaussian copula has closed form
+        # For bivariate Gaussian copula, I(ρ) = n / (1 - ρ²)²
+        n = U.shape[0]
+        fisher_scalar = n / (1 - rho**2)**2
+        fisher_matrix = np.array([[fisher_scalar]])
+
+        # Determinant
+        fisher_det = fisher_scalar
+
+        # Volume element (sqrt of determinant)
+        volume_element = np.sqrt(fisher_det)
+
+        # Mutual information for Gaussian copula: -0.5 * log(1 - ρ²)
+        mutual_info = -0.5 * np.log(1 - rho**2)
+
+        return {
+            "fisher_information": fisher_matrix,
+            "fisher_determinant": fisher_det,
+            "manifold_volume": volume_element,
+            "mutual_information": mutual_info,
+            "correlation": rho,
+        }
+
+    def kendall_tau(self) -> float:
+        """
+        Compute Kendall's tau for the Gaussian copula.
+
+        For Gaussian copula: τ = (2/π) * arcsin(ρ)
+
+        Returns:
+            Kendall's tau coefficient
+        """
+        if not self.is_fitted_:
+            raise ValueError("Copula must be fitted")
+
+        rho = self.params_["rho"]
+        tau = (2 / np.pi) * np.arcsin(rho)
+
+        return tau
+
+    def spearman_rho(self) -> float:
+        """
+        Compute Spearman's rho for the Gaussian copula.
+
+        For Gaussian copula: ρ_S = (6/π) * arcsin(ρ/2)
+
+        Returns:
+            Spearman's rho coefficient
+        """
+        if not self.is_fitted_:
+            raise ValueError("Copula must be fitted")
+
+        rho = self.params_["rho"]
+        rho_s = (6 / np.pi) * np.arcsin(rho / 2)
+
+        return rho_s
